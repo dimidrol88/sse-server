@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Клиент</title>
+</head>
+<body>
+<h1><a href="https://backloger.ru" target="_blank">Backloger.ru</a></h1>
+<h3>Server-Sent Events (SSE)</h3>
+<button onclick="connect()">Подключиться</button>
+<button onclick="disconnect()">Отключиться</button>
+<div id="log" style="margin-top: 20px; font-family: Ubuntu,ui-serif;"></div>
+
+<script>
+    let eventSource = null;
+
+    function log(message) {
+        const log = document.getElementById('log');
+        const time = new Date().toLocaleTimeString();
+        log.innerHTML += `[${time}] ${message}<br>`;
+    }
+
+    function connect() {
+        if (eventSource && eventSource.readyState === EventSource.OPEN) {
+            log("Уже подключено.");
+            return;
+        }
+
+        eventSource = new EventSource('http://localhost:8080/subscribe', {
+            withCredentials: false
+        });
+
+        eventSource.onopen = function () {
+            log("Соединение открыто");
+        };
+
+        eventSource.onmessage = function (event) {
+            log("Получено сообщение (без имени): " + event.data);
+        };
+
+        eventSource.onerror = function () {
+            if (eventSource.readyState === EventSource.CLOSED) {
+                log("Соединение закрыто сервером.");
+            } else {
+                log("Ошибка соединения, возможно, потеря связи с сервером.");
+            }
+        };
+
+        eventSource.addEventListener("ping", function (event) {
+            console.log(event.type + " " + event.data)
+        });
+
+        eventSource.addEventListener("example", function (event) {
+            const data = JSON.parse(event.data)
+
+            log("Получено сообщение (" + event.type + "): " + data.message);
+        });
+    }
+
+    function disconnect() {
+        if (eventSource) {
+            eventSource.close();
+            log("Соединение вручную закрыто.");
+            eventSource = null;
+        } else {
+            log("Соединение закрыто.");
+        }
+    }
+</script>
+</body>
+</html>
