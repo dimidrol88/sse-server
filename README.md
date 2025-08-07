@@ -7,6 +7,8 @@
 
 ### Запуск
 
+1. Запускаем сервер
 ```shell
 make run
 ```
+2. Открыть файл [client.html](public/client.html)
