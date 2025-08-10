@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  sse-server:
+    build:
+      context: ./
+      dockerfile: docker/sse.dockerfile
+    container_name: sse-server
+    ports:
+      - "8080:8080"
